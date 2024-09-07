@@ -58,7 +58,7 @@ def download_volume(book_epub, it, mode_id=0):
                     book_epub.set_images(file_path)
                     html_body += XML_IMAGE_LABEL.format(fb=file_base, fn=file_name)
                 print('│   ├──', img_url, '->', file_path, 'success' if file_name else 'fail')
-            print('│   └── Download chapter-image completed.')
+            print('│   └─�� Download chapter-image completed.')
         else:
             print('├── Downloaded empty chapter.')
 
@@ -91,7 +91,7 @@ def whole_book_download():
 def volume_by_volume_download():
     """按卷下载，单独下载某一/些卷"""
     print_format([it['volume'] for it in wk.book['toc']])
-    volume_idx_list = input('输入要下载的卷索引，下载多卷用空格分割（默认0，逐卷下载）：').split()
+    volume_idx_list = input('输入要下载的卷索引，下载多卷用空格分割��默认0，逐卷下载）：').split()
     print()
     # 检查输入索引是否合法
     if volume_idx_list and all(map(lambda i: i.isdigit() and (1 <= int(i) <= len(wk.book['toc'])), volume_idx_list)):
@@ -150,31 +150,28 @@ def print_format(volume_list):
 
 
 if __name__ == '__main__':
-    book_id = input(f'输入要下载的小说id（如 https://{wenku_host}/book/2906.htm 的id是2906）：')
-    print()
-    if not book_id.isdigit():
-        print('Error: book_id is invalid.')
-        sys.exit(0)
+    book_ids = [
+        114
+    ]
 
-    wk = Wenku8Download(book_id, wenku_host, wenkupic_proxy_host, wenkuapp_proxy_host)
-    if wk.error_msg:
-        print('Error:', wk.error_msg)
-        sys.exit(0)
-    wk.sleep_time = sleep_time  # 设置延迟时间
+    for book_id in book_ids:
+        print(f"\nProcessing book ID: {book_id}")
+        
+        wk = Wenku8Download(str(book_id), wenku_host, wenkupic_proxy_host, wenkuapp_proxy_host)
+        if wk.error_msg:
+            print('Error:', wk.error_msg)
+            continue
+        wk.sleep_time = sleep_time  # 设置延迟时间
 
-    print('Light Noval Title:', wk.book['title'], '\n')
+        print('Light Novel Title:', wk.book['title'], '\n')
 
-    mode = input('选择下载模式：0-按卷下载（默认）；1-整本下载。\n输入模式索引：')
-    print()
+        if not wk.book['copyright']:
+            print('Note: web copyright is restricted and will be downloaded from APP.\n')
 
-    if not wk.book['copyright']:
-        print('Note: web copyright is restricted and will be downloaded from APP.\n')
-
-    if not mode:
-        mode = '0'
-    if mode.isdigit() and int(mode) == 0:
-        volume_by_volume_download()
-    elif mode.isdigit() and int(mode) == 1:
+        # 默认使用整本下载模式
         whole_book_download()
-    else:
-        print('Error: mode_id is invalid.')
+
+        print(f"Finished processing book ID: {book_id}\n")
+        print("-" * 50)
+
+    print("All books have been processed.")
